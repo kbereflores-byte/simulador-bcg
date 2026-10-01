@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador BCG y Ciclo de Vida</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f5f6f8;color:#202124}
+.wrap{max-width:900px;margin:auto;padding:20px}
+h1{text-align:center}.intro{text-align:center;color:#555}
+.controls,.result{background:white;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 2px 8px #0001}
+button{padding:12px 18px;border:0;border-radius:10px;background:#333;color:white;margin:5px;cursor:pointer}
+button.active{background:#2563eb}
+.bcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.q{padding:25px;border-radius:14px;min-height:110px;border:3px solid transparent}
+.q strong{font-size:20px}.q small{display:block;margin-top:8px}
+.est{background:#fff4b8}.int{background:#dff1ff}.vaca{background:#e5f6df}.perro{background:#eee}
+.selected{border-color:#111}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.stage{padding:14px;text-align:center;background:#eee;border-radius:10px}
+.stage.active{background:#2563eb;color:white}
+.result h2{margin-top:0}
+@media(max-width:600px){.bcg,.timeline{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Simulador: Matriz BCG + Ciclo de Vida</h1>
+<p class="intro">Selecciona una etapa y observa cómo se relaciona con la Matriz BCG.</p>
+
+<div class="controls">
+<h2>Selecciona la etapa del ciclo de vida</h2>
+<div id="buttons"></div>
+<div class="timeline" id="timeline"></div>
+</div>
+
+<div class="result" id="result"></div>
+
+<div class="bcg">
+<div class="q est" data-q="estrella"><strong>⭐ Estrella</strong><small>Alta participación + alto crecimiento</small></div>
+<div class="q int" data-q="interrogante"><strong>❓ Interrogante</strong><small>Baja participación + alto crecimiento</small></div>
+<div class="q vaca" data-q="vaca"><strong>🐄 Vaca lechera</strong><small>Alta participación + bajo crecimiento</small></div>
+<div class="q perro" data-q="perro"><strong>🐕 Perro</strong><small>Baja participación + bajo crecimiento</small></div>
+</div>
+
+<div class="controls">
+<h3>¿Cómo funciona?</h3>
+<p>El ciclo de vida muestra cómo evoluciona un producto con el tiempo. La BCG lo clasifica según el crecimiento del mercado y su participación relativa. La asociación más común es: <b>Introducción → Interrogante → Crecimiento → Estrella → Madurez → Vaca → Declive → Perro</b>.</p>
+<p><b>Importante:</b> esta relación es una aproximación didáctica; un producto no necesariamente pasa por todos los cuadrantes en ese orden.</p>
+</div>
+</div>
+
+<script>
+const data={
+introduccion:{nombre:"Introducción",bcg:"interrogante",ventas:"Bajas",crecimiento:"Alto",participacion:"Baja",texto:"El producto acaba de entrar al mercado. Existe potencial de crecimiento, pero todavía tiene poca participación. Por eso suele relacionarse con el cuadrante Interrogante."},
+crecimiento:{nombre:"Crecimiento",bcg:"estrella",ventas:"En rápido aumento",crecimiento:"Alto",participacion:"Alta o aumentando",texto:"Las ventas aumentan rápidamente y el producto gana participación. Si alcanza una participación alta en un mercado de rápido crecimiento, se relaciona con Estrella."},
+madurez:{nombre:"Madurez",bcg:"vaca",ventas:"Altas y estabilizadas",crecimiento:"Bajo o moderado",participacion:"Alta",texto:"El mercado comienza a estabilizarse. Un producto con alta participación y un mercado de bajo crecimiento suele ubicarse como Vaca lechera."},
+declive:{nombre:"Declive",bcg:"perro",ventas:"En disminución",crecimiento:"Bajo",participacion:"Baja o disminuyendo",texto:"Las ventas y el crecimiento del mercado disminuyen. Si también se pierde participación, la relación típica es Perro."}
+};
+const names=Object.keys(data);
+const buttons=document.getElementById("buttons");
+const timeline=document.getElementById("timeline");
+const result=document.getElementById("result");
+const qs=document.querySelectorAll(".q");
+
+names.forEach(k=>{
+ const b=document.createElement("button"); b.textContent=data[k].nombre;
+ b.onclick=()=>select(k); b.id="b-"+k; buttons.appendChild(b);
+ const s=document.createElement("div"); s.className="stage"; s.textContent=data[k].nombre; s.id="s-"+k; timeline.appendChild(s);
+});
+function select(k){
+ const d=data[k];
+ document.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+ document.getElementById("b-"+k).classList.add("active");
+ document.querySelectorAll(".stage").forEach(x=>x.classList.remove("active"));
+ document.getElementById("s-"+k).classList.add("active");
+ qs.forEach(x=>x.classList.toggle("selected",x.dataset.q===d.bcg));
+ const labels={interrogante:"❓ Interrogante",estrella:"⭐ Estrella",vaca:"🐄 Vaca lechera",perro:"🐕 Perro"};
+ result.innerHTML=`<h2>${d.nombre} → ${labels[d.bcg]}</h2>
+ <p>${d.texto}</p>
+ <p><b>Ventas:</b> ${d.ventas} &nbsp; | &nbsp; <b>Crecimiento del mercado:</b> ${d.crecimiento} &nbsp; | &nbsp; <b>Participación:</b> ${d.participacion}</p>`;
+}
+select("introduccion");
+</script>
+</body>
+</html>
